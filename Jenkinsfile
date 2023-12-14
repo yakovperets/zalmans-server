@@ -5,9 +5,9 @@ pipeline {
         githubPush()
     }
 
-    environment {
+     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
-        DOCKER_REGISTRY_CREDENTIALS = 'barakuni'
+        DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
     }
 
     stages {
