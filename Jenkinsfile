@@ -6,11 +6,8 @@ pipeline {
     }
 
     environment {
-        // Declare and set environment variables within the script block
-        script {
-            DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
-            DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
-        }
+        DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
+        DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
     }
 
     stages {
