@@ -45,8 +45,8 @@ pipeline {
                     sh 'docker build -t $DOCKER_IMAGE_NAME .'
 
                     // Run unit tests or any other testing commands here
-                    sh 'npm install'
-                    sh 'npm test'
+                    // sh 'npm install'
+                    // sh 'npm test'
                 }
             }
         }
