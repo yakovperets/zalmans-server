@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     // Install linting dependencies
-                    sh 'npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
+                    sh 'npm i -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
                     
                     // Run linting
                     sh 'npm run lint'
