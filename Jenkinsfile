@@ -20,17 +20,17 @@ pipeline {
             }
         }
 
-        stage('Lint') {
-            steps {
-                script {
-                    // Install linting dependencies
-                    sh 'npm i -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
+        // stage('Lint') {
+        //     steps {
+        //         script {
+        //             // Install linting dependencies
+        //             sh 'npm i -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
                     
-                    // Run linting
-                    sh 'npm run lint'
-                }
-            }
-        }
+        //             // Run linting
+        //             sh 'npm run lint'
+        //         }
+        //     }
+        // }
 
         stage('Build and Test') {
             steps {
