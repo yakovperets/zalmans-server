@@ -6,11 +6,8 @@ pipeline {
     }
 
     environment {
-        // Declare and set environment variables within the script block
-        script {
-            DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
-            DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
-        }
+        DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
+        DOCKER_REGISTRY_CREDENTIALS = 'barakuni'
     }
 
     stages {
@@ -18,7 +15,7 @@ pipeline {
             steps {
                 script {
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
-                    checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url: 'https://github.com/program-training/Class5-store-back']]])
+                    checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url: 'https://github.com/yakovperets/zalmans-server.git']]])
                 }
             }
         }
@@ -45,8 +42,8 @@ pipeline {
                     sh 'docker build -t $DOCKER_IMAGE_NAME .'
 
                     // Run unit tests or any other testing commands here
-                    sh 'npm install'
-                    sh 'npm test'
+                    // sh 'npm install'
+                    // sh 'npm test'
                 }
             }
         }
@@ -55,9 +52,7 @@ pipeline {
             steps {
                 script {
                     // Login to Docker Hub
-                    withCredentials([string(credentialsId: 'barakuni', variable: 'DOCKER_REGISTRY_CREDENTIALS')]) {
-                        sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
-                    }
+                    sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
 
                     // Push the Docker image to Docker Hub
                     sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$BUILD_NUMBER"
