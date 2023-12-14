@@ -3,7 +3,7 @@ pipeline {
 
     triggers {
         githubPush()
-        githubRelease(releaseNotes: 'CHANGELOG.md')
+        // githubRelease(releaseNotes: 'CHANGELOG.md')
     }
 
     environment {
