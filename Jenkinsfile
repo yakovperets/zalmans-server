@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()
+        githubPullRequest()
     }
+
 
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
