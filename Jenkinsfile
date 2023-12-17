@@ -5,7 +5,6 @@ pipeline {
         githubPush()
     }
 
-
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
         DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
@@ -21,24 +20,12 @@ pipeline {
             }
         }
 
-        // stage('Lint') {
-        //     steps {
-        //         script {
-        //             // Install linting dependencies
-        //             sh 'npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
-                    
-        //             // Run linting
-        //             sh 'npm run lint'
-        //         }
-        //     }
-        // }
-
         stage('Build and Test') {
             steps {
                 script {
                     // Create the network if it doesn't exist
                     sh 'docker network ls | grep -q app-network || docker network create app-network'
-                   
+
                     // Build the Docker image for Node.js server
                     sh 'docker build -t $DOCKER_IMAGE_NAME .'
 
@@ -53,7 +40,7 @@ pipeline {
             steps {
                 script {
                     // Login to Docker Hub
-                    withCredentials([string(credentialsId: 'barakuni', variable: 'DOCKER_REGISTRY_CREDENTIALS')]) {
+                    withCredentials([usernamePassword(credentialsId: 'barakuni', usernameVariable: 'DOCKER_REGISTRY_CREDENTIALS_USR', passwordVariable: 'DOCKER_REGISTRY_CREDENTIALS_PSW')]) {
                         sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
                     }
 
@@ -70,7 +57,9 @@ pipeline {
         always {
             script {
                 // Cleanup
-                sh 'docker network rm app-network'
+                sh 'docker network ls | grep -q app-network && docker network rm app-network || true'
+                sh 'docker system prune '
+                cleanWs()
             }
         }
     }
