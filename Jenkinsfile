@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        githubPullRequests()
+        githubPullRequests sourceBranchFilter: 'main', triggerPhrase: 'retest', onlyTriggerPhrase: false
     }
 
     environment {
