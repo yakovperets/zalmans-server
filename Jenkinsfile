@@ -62,6 +62,7 @@ pipeline {
             script {
                 // Cleanup
                 sh 'docker network rm app-network'
+                sh 'docker logout'
             }
         }
     }
