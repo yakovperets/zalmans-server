@@ -37,12 +37,7 @@ pipeline {
                 script {
                     // Create the network if it doesn't exist
                     sh 'docker network ls | grep -q app-network || docker network create app-network'
-                    // Print the current directory
-                    sh 'pwd'
-
-                    // Print the contents of productsDal.ts
-                    sh 'cat src/products/dal/productsDal.ts'
- 
+                   
                     // Build the Docker image for Node.js server
                     sh 'docker build -t $DOCKER_IMAGE_NAME .'
 
