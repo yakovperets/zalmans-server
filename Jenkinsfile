@@ -15,7 +15,7 @@ pipeline {
             steps {
                 script {
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
-                    checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
+                    checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/program-training/Class5-ERP-back.git']]])
                 }
             }
         }
