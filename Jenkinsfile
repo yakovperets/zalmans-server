@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        changeRequest()
+        githubPullRequests()
     }
 
     environment {
