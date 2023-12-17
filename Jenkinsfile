@@ -14,7 +14,20 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/yakovperets/zalmans-server.git']]])
+                    def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
+                    checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url: 'https://github.com/program-training/Class5-store-back']]])
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                script {
+                    // Install linting dependencies
+                    sh 'npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
+                    
+                    // Run linting
+                    sh 'npm run lint'
                 }
             }
         }
@@ -22,11 +35,15 @@ pipeline {
         stage('Build and Test') {
             steps {
                 script {
+                    // Create the network if it doesn't exist
                     sh 'docker network ls | grep -q app-network || docker network create app-network'
 
-                    def version = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
+                    // Build the Docker image for Node.js server
+                    sh 'docker build -t $DOCKER_IMAGE_NAME .'
 
-                    sh "docker build -t $DOCKER_IMAGE_NAME --build-arg APP_VERSION=$version ."
+                    // Run unit tests or any other testing commands here
+                    sh 'npm install'
+                    sh 'npm test'
                 }
             }
         }
@@ -34,11 +51,26 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'barakuni', usernameVariable: 'DOCKER_REGISTRY_CREDENTIALS_USR', passwordVariable: 'DOCKER_REGISTRY_CREDENTIALS_PSW')]) {
+                    // Login to Docker Hub
+                    withCredentials([string(credentialsId: 'barakuni', variable: 'DOCKER_REGISTRY_CREDENTIALS')]) {
                         sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
+                    }
 
-                        def version = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
+                    // Push the Docker image to Docker Hub
+                    sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$BUILD_NUMBER"
+                    sh "docker push $DOCKER_IMAGE_NAME:$BUILD_NUMBER"
+                    sh "docker push $DOCKER_IMAGE_NAME:latest"
+                }
+            }
+        }
+    }
 
-                        sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$version"
-                        sh "docker push $DOCKER_IMAGE_NAME:$version"
-                        sh "docker push $DOCKER_IMAGE_NAME:latest
+    post {
+        always {
+            script {
+                // Cleanup
+                sh 'docker network rm app-network'
+            }
+        }
+    }
+}
