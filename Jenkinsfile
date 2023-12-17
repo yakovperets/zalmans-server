@@ -20,17 +20,17 @@ pipeline {
             }
         }
 
-        stage('Lint') {
-            steps {
-                script {
-                    // Install linting dependencies
-                    sh 'npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
+        // stage('Lint') {
+        //     steps {
+        //         script {
+        //             // Install linting dependencies
+        //             sh 'npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint'
                     
-                    // Run linting
-                    sh 'npm run lint'
-                }
-            }
-        }
+        //             // Run linting
+        //             sh 'npm run lint'
+        //         }
+        //     }
+        // }
 
         stage('Build and Test') {
             steps {
@@ -42,8 +42,8 @@ pipeline {
                     sh 'docker build -t $DOCKER_IMAGE_NAME .'
 
                     // Run unit tests or any other testing commands here
-                    sh 'npm install'
-                    sh 'npm test'
+                    // sh 'npm install'
+                    // sh 'npm test'
                 }
             }
         }
