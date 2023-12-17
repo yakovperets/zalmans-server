@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()
-        // githubRelease(releaseNotes: 'CHANGELOG.md')
+        changeRequest()
     }
 
     environment {
@@ -30,12 +29,12 @@ pipeline {
                     // Get the version from the Git tag
                     def version = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
 
-                    // Build the Docker image for Node.js server with the version as a build argument
-                    sh "docker build -t $DOCKER_IMAGE_NAME --build-arg APP_VERSION=$version ."
-
-                    // Run unit tests or any other testing commands here
+                    // Uncomment and add necessary commands for testing
                     // sh 'npm install'
                     // sh 'npm test'
+
+                    // Build the Docker image for Node.js server with the version as a build argument
+                    sh "docker build -t $DOCKER_IMAGE_NAME --build-arg APP_VERSION=$version ."
                 }
             }
         }
@@ -43,15 +42,17 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    // Login to Docker Hub
-                    sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
+                    withCredentials([usernamePassword(credentialsId: 'barakuni', usernameVariable: 'DOCKER_REGISTRY_CREDENTIALS_USR', passwordVariable: 'DOCKER_REGISTRY_CREDENTIALS_PSW')]) {
+                        // Login to Docker Hub
+                        sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
 
-                    // Tag the Docker image with the version
-                    sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$version"
+                        // Tag the Docker image with the version
+                        sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$version"
 
-                    // Push the Docker image to Docker Hub
-                    sh "docker push $DOCKER_IMAGE_NAME:$version"
-                    sh "docker push $DOCKER_IMAGE_NAME:latest"
+                        // Push the Docker image to Docker Hub
+                        sh "docker push $DOCKER_IMAGE_NAME:$version"
+                        sh "docker push $DOCKER_IMAGE_NAME:latest"
+                    }
                 }
             }
         }
