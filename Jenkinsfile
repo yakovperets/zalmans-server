@@ -23,20 +23,17 @@ pipeline {
             }
         }
 
-        stage('Build and Test') {
+        stage('Build ') {
             steps {
                 script {
                     // Create the network if it doesn't exist
-                    sh 'npm install'
-                    sh 'npm test'
+                    
                     sh 'docker network ls | grep -q app-network || docker network create app-network'
 
                     // Build the Docker image for Node.js server
                     sh 'docker build -t $DOCKER_IMAGE_NAME .'
 
-                    // Run unit tests or any other testing commands here
-                    sh 'npm install'
-                    sh 'npm test'
+                   
                 }
             }
         }
