@@ -9,7 +9,7 @@ pipeline {
     }
 
     triggers {
-        githubPush()
+        githubRelease(releaseType: 'created')
     }
 
     stages {
