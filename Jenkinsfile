@@ -3,9 +3,8 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
-        DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
+        DOCKER_REGISTRY_CREDENTIALS_ID = credentials('barakuni')
         TAG = sh(script: 'git describe --tags', returnStdout: true).trim()
-
     }
 
     stages {
@@ -19,17 +18,14 @@ pipeline {
             }
         }
 
-        stage('Build ') {
+        stage('Build') {
             steps {
                 script {
                     // Create the network if it doesn't exist
-                    
                     sh 'docker network ls | grep -q app-network || docker network create app-network'
 
                     // Build the Docker image for Node.js server
-                    sh 'docker build -t $DOCKER_IMAGE_NAME .'
-
-                   
+                    sh "docker build -t $DOCKER_IMAGE_NAME ."
                 }
             }
         }
@@ -38,13 +34,15 @@ pipeline {
             steps {
                 script {
                     // Login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'barakuni', usernameVariable: 'DOCKER_REGISTRY_CREDENTIALS_USR', passwordVariable: 'DOCKER_REGISTRY_CREDENTIALS_PSW')]) {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_CREDENTIALS_USR', passwordVariable: 'DOCKER_REGISTRY_CREDENTIALS_PSW')]) {
                         sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
                     }
 
-                    // Push the Docker image to Docker Hub
+                    // Tag and push the Docker image to Docker Hub
                     sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$BUILD_NUMBER"
+                    sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$TAG"
                     sh "docker push $DOCKER_IMAGE_NAME:$BUILD_NUMBER"
+                    sh "docker push $DOCKER_IMAGE_NAME:$TAG"
                     sh "docker push $DOCKER_IMAGE_NAME:latest"
                 }
             }
@@ -56,7 +54,7 @@ pipeline {
             script {
                 // Cleanup
                 sh 'docker network ls | grep -q app-network && docker network rm app-network || true'
-                sh 'docker system prune '
+                sh 'docker system prune -f'
                 cleanWs()
             }
         }
