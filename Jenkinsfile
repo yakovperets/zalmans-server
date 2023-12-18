@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    triggers {
-        githubPush()
-    }
-
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
         DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
