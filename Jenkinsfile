@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
         DOCKER_REGISTRY_CREDENTIALS_ID = 'barakuni'
-        TAG = sh(script: 'git describe --tags', returnStdout: true).trim()
+        TAG = sh(script: 'git tag -l --sort=-v:refname | head -n 1', returnStdout: true).trim()
 
     }
 
