@@ -1,19 +1,20 @@
 pipeline {
     agent any
-    triggers {
-        githubPush()
-    }
+
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
-        DOCKER_REGISTRY_CREDENTIALS_ID = credentials('barakuni')
-        TAG = sh(script: 'git describe --tags', returnStdout: true).trim()
+        DOCKER_REGISTRY_CREDENTIALS_ID = 'barakuni'
+    }
+
+    triggers {
+        githubPush()
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    sh 'echo $TAG ;'
+                    echo "Checking out code..."
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
                     checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
                 }
@@ -23,6 +24,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
+                    echo "Building Docker image..."
                     // Create the network if it doesn't exist
                     sh 'docker network ls | grep -q app-network || docker network create app-network'
 
@@ -35,6 +37,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
+                    echo "Pushing Docker image to Docker Hub..."
                     // Login to Docker Hub
                     withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_CREDENTIALS_USR', passwordVariable: 'DOCKER_REGISTRY_CREDENTIALS_PSW')]) {
                         sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
@@ -54,6 +57,7 @@ pipeline {
     post {
         always {
             script {
+                echo "Cleaning up..."
                 // Cleanup
                 sh 'docker network ls | grep -q app-network && docker network rm app-network || true'
                 sh 'docker system prune -f'
