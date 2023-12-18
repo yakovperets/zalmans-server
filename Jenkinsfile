@@ -4,6 +4,8 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
         DOCKER_REGISTRY_CREDENTIALS_ID = 'barakuni'
+        TAG = sh(script: 'git describe --tags', returnStdout: true).trim()
+
     }
 
     triggers {
@@ -14,6 +16,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
+                    echo "$TAG"
                     echo "Checking out code..."
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
                     checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
