@@ -8,12 +8,15 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
         DOCKER_REGISTRY_CREDENTIALS = credentials('barakuni')
+        TAG = sh(script: 'git describe --tags', returnStdout: true).trim()
+
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
+                    sh 'echo $TAG'
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
                     checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/program-training/Class5-store-front.git']]])
                 }
