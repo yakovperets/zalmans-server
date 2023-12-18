@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    sh 'echo $TAG'
+                    sh 'echo $TAG ;'
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
                     checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
                 }
