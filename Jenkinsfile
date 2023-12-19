@@ -27,7 +27,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    echo "Building Docker image..."
+                    echo "Building Docker image...."
                     // Create the network if it doesn't exist
                     sh 'docker network ls | grep -q app-network || docker network create app-network'
 
