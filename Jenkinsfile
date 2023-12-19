@@ -1,67 +1,26 @@
 pipeline {
     agent any
-
-    environment {
-        DOCKER_IMAGE_NAME = 'yakovperets/zalmans-server'
-        DOCKER_REGISTRY_CREDENTIALS_ID = 'barakuni'
-        TAG = sh(script: 'git tag -l --sort=-v:refname | head -n 1', returnStdout: true).trim()
-
+    parameters {
+        string(name: 'TAG_NAME', defaultValue: '', description: 'Enter the tag name')
     }
-
-    triggers {
-        githubPush()
-    }
-
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    echo "$TAG"
-                    echo "Checking out code..."
+                    sh 'printenv'
+                    echo "Checking out code....."
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
                     checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
-                }
-            }
-        }
 
-        stage('Build') {
-            steps {
-                script {
-                    echo "Building Docker image...."
-                    // Create the network if it doesn't exist
-                    sh 'docker network ls | grep -q app-network || docker network create app-network'
-
-                    // Build the Docker image for Node.js server
-                    sh "docker build -t $DOCKER_IMAGE_NAME ."
-                }
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                script {
-                    echo "Pushing Docker image to Docker Hub..."
-                    // Login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_CREDENTIALS_USR', passwordVariable: 'DOCKER_REGISTRY_CREDENTIALS_PSW')]) {
-                        sh "docker login -u $DOCKER_REGISTRY_CREDENTIALS_USR -p $DOCKER_REGISTRY_CREDENTIALS_PSW"
+                    // Create and push a new commit with a tag
+                    if (params.TAG_NAME) {
+                        sh "git commit --allow-empty -m 'Commit for tag ${params.TAG_NAME}'"
+                        sh "git tag -a ${params.TAG_NAME} -m 'Tagging release ${params.TAG_NAME}'"
+                        sh "git push origin ${pullRequestBranch} --tags"
+                    } else {
+                        echo "No tag name provided. Skipping tag creation."
                     }
-
-                    // Tag and push the Docker image to Docker Hub
-                    sh "docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$TAG"
-                    sh "docker push $DOCKER_IMAGE_NAME:$TAG"
                 }
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                echo "Cleaning up..."
-                // Cleanup
-                sh 'docker network ls | grep -q app-network && docker network rm app-network || true'
-                sh 'docker system prune -f'
-                cleanWs()
             }
         }
     }
