@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     echo "Received a Webhook Request from Github."
-                    echo "Tag Name: $TAG_NAME"
+                    echo "Tag Name..: $TAG_NAME"
 
                     // Add additional processing steps as needed
                 }
