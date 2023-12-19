@@ -12,7 +12,7 @@ pipeline {
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
                     checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
                     // Check if TAG_NAME exists
-                    def TAG_NAME = sh(script: "git describe --tags ${env.GIT_COMMIT}", returnStdout: true).trim()
+                    def TAG_NAME = sh(script: "git tag --contains ${env.GIT_COMMIT}", returnStdout: true).trim()
                     if (TAG_NAME) {
                         echo "GitHub Release Tag Name: ${TAG_NAME}"
                         // Add any other steps you need for when TAG_NAME exists
