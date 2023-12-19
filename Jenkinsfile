@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    triggers {
+        githubPush()
+    }
     parameters {
         string(name: 'TAG_NAME', defaultValue: '', description: 'Enter the tag name')
     }
