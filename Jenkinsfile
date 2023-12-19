@@ -1,26 +1,25 @@
 pipeline {
     agent any
     triggers {
-        GenericTrigger(
-            genericVariables: [
-                [key: 'TAG_NAME', value: '$.ref', defaultValue: 'null']
-            ],
-            causeString: 'Triggered By Github',
-            token: '12345678',
-            tokenCredentialId: '',
-            printContributedVariables: true,
-            printPostContent: true,
-            silentResponse: false
-        )
+        githubPush()
     }
     stages {
-        stage('ProcessWebHook') {
+        stage('Checkout') {
             steps {
                 script {
-                    echo "Received a Webhook Request from Github."
-                    echo "Tag Name..: $TAG_NAME"
-
-                    // Add additional processing steps as needed
+                    sh 'printenv'
+                    echo "Checking out code....."
+                    def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
+                    checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
+                    // Check if TAG_NAME exists
+                    def TAG_NAME = sh(script: "git describe --tags ${env.GIT_COMMIT}", returnStdout: true).trim()
+                    if (TAG_NAME) {
+                        echo "GitHub Release Tag Name: ${TAG_NAME}"
+                        // Add any other steps you need for when TAG_NAME exists
+                    } else {
+                        echo "No GitHub Release Tag found."
+                        // Add any other steps you need for when TAG_NAME does not exist
+                    }
                 }
             }
         }
