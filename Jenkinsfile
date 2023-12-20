@@ -14,6 +14,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
+                    def buildCause = currentBuild.causes[0].shortDescription
+                    echo "Build triggered by: ${buildCause}"
                     sh 'printenv'
                     echo "Checking out code........"
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
