@@ -41,7 +41,7 @@ pipeline {
 
         stage('NextStage') {
             when {
-                expression { TAG_EXISTS.toBoolean()&& isPushTrigger() }
+                expression {  isPushTrigger() }
             }
             steps {
                 // This stage will only execute if TAG_EXISTS is true
