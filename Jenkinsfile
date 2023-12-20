@@ -8,12 +8,15 @@ pipeline {
         // Define environment variables at the top level
         TAG_NAME = ''
         TAG_EXISTS = 'false'
+        CAUSE = "${currentBuild.getBuildCauses()[0].shortDescription}"
+
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
+                    echo "Build caused by ${env.CAUSE}
                     // def buildCause = currentBuild.causes[0].shortDescription
                     // echo "Build triggered by: ${buildCause}"
                     sh 'printenv'
