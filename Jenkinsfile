@@ -8,18 +8,28 @@ pipeline {
         // Define environment variables at the top level
         TAG_NAME = ''
         TAG_EXISTS = 'false'
-        CAUSE = currentBuild.getBuildCauses()
-
-
+        // CAUSE = currentBuild.getBuildCauses()
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    echo "Build caused by ${env.CAUSE}"
-                    // def buildCause = currentBuild.causes[0].shortDescription
-                    // echo "Build triggered by: ${buildCause}"
+                    def CAUSE = currentBuild.getBuildCauses()
+
+                    // Assuming CAUSE is a list and you want the first element
+                    def causeDetails = CAUSE[0]?.toString()
+
+                    def causeType = 'unknown' // Default value if cause type is not found
+
+                    // Extracting cause type using regular expression
+                    def match = causeDetails =~ /GitHub (\w+) Cause/
+                    if (match) {
+                        causeType = match[0][1].toLowerCase()
+                    }
+
+                    echo "Build caused by ${causeType}"
+                    // echo "Build caused by ${env.CAUSE}"
                     sh 'printenv'
                     echo "Checking out code........"
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
@@ -47,7 +57,7 @@ pipeline {
 
         stage('NextStage') {
             when {
-                expression {  TAG_EXISTS.toBoolean() }
+                expression { TAG_EXISTS.toBoolean() }
             }
             steps {
                 // This stage will only execute if TAG_EXISTS is true
@@ -58,4 +68,3 @@ pipeline {
         }
     }
 }
-
