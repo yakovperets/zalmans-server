@@ -8,7 +8,8 @@ pipeline {
         // Define environment variables at the top level
         TAG_NAME = ''
         TAG_EXISTS = 'false'
-        CAUSE = "${currentBuild.getBuildCauses()[0].shortDescription}"
+        CAUSE = currentBuild.getBuildCauses()
+
 
     }
 
