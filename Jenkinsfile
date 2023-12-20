@@ -21,7 +21,7 @@ pipeline {
                     // def buildCause = currentBuild.causes[0].shortDescription
                     // echo "Build triggered by: ${buildCause}"
                     sh 'printenv'
-                    echo "Checking out code........"
+                    echo "Checking out code........."
                     def pullRequestBranch = env.GITHUB_PR_SOURCE_BRANCH ?: 'main'
                     checkout([$class: 'GitSCM', branches: [[name: "*/${pullRequestBranch}"]], userRemoteConfigs: [[url:'https://github.com/yakovperets/zalmans-server.git']]])
 
