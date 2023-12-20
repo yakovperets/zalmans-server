@@ -17,7 +17,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    echo "Build caused by ${env.CAUSE}
+                    echo "Build caused by ${env.CAUSE}"
                     // def buildCause = currentBuild.causes[0].shortDescription
                     // echo "Build triggered by: ${buildCause}"
                     sh 'printenv'
