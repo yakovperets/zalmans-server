@@ -41,7 +41,7 @@ pipeline {
 
         stage('NextStage') {
             when {
-                expression { TAG_EXISTS.toBoolean() }
+                expression { TAG_EXISTS.toBoolean()&& isPushTrigger() }
             }
             steps {
                 // This stage will only execute if TAG_EXISTS is true
@@ -51,4 +51,7 @@ pipeline {
             }
         }
     }
+}
+def isPushTrigger() {
+    return currentBuild.rawBuild.getCause(hudson.triggers.SCMTrigger$Cause).getClass().getSimpleName() == 'SCMTrigger$PushCause'
 }
